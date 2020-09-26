@@ -8,6 +8,7 @@ import { InputField } from "../components/InputField";
 import { Wrapper } from "../components/Wrapper";
 import { useLoginMutation } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
+import { getStringOrElse } from "../utils/getStringOrElse";
 import { toErrorMap } from "../utils/toErrorMap";
 
 interface loginProps {}
@@ -24,7 +25,7 @@ const Login: React.FC<loginProps> = ({}) => {
           if (response.data?.login.errors) {
             setErrors(toErrorMap(response.data.login.errors));
           } else if (response.data?.login.user) {
-            router.push("/");
+            router.push(getStringOrElse(router.query.next, "/"));
           }
         }}
       >
