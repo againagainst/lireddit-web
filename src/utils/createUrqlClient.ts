@@ -1,19 +1,23 @@
-import { cacheExchange } from "@urql/exchange-graphcache";
+import { cacheExchange, Resolver } from "@urql/exchange-graphcache";
 import { CacheExchangeOpts } from "@urql/exchange-graphcache/dist/types/cacheExchange";
 import Router from "next/router";
-import { dedupExchange, Exchange, fetchExchange } from "urql";
-import { pipe, tap } from 'wonka';
+import {
+  dedupExchange,
+  Exchange,
+  fetchExchange,
+  stringifyVariables,
+} from "urql";
+import { pipe, tap } from "wonka";
 import {
   LoginMutation,
   LogoutMutation,
   MeDocument,
   MeQuery,
-  RegisterMutation
+  RegisterMutation,
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
 
-
-const errorExchange: Exchange = ({ forward }) => ops$ => {
+const errorExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
     forward(ops$),
     tap(({ error }) => {
@@ -24,7 +28,36 @@ const errorExchange: Exchange = ({ forward }) => ops$ => {
   );
 };
 
+const cursorPagination = (): Resolver => {
+  return (_parent, fieldArgs, cache, info) => {
+    const { parentKey: entityKey, fieldName } = info;
+
+    const allFields = cache.inspectFields(entityKey);
+    const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
+    const size = fieldInfos.length;
+    if (size === 0) {
+      return undefined;
+    }
+
+    const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
+    const isItInTheCache = cache.resolveFieldByKey(entityKey, fieldKey);
+    info.partial = !isItInTheCache;
+    const results: string[] = [];
+    fieldInfos.forEach((fi) => {
+      const data = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string[];
+      results.push(...data);
+    });
+
+    return results;
+  };
+};
+
 const cacheExchangeOptions: CacheExchangeOpts = {
+  resolvers: {
+    Query: {
+      posts: cursorPagination(),
+    },
+  },
   updates: {
     Mutation: {
       register: (_result, args, cache, info) => {
