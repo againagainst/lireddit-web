@@ -40,19 +40,35 @@ const cursorPagination = (): Resolver => {
     }
 
     const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
-    const isItInTheCache = cache.resolveFieldByKey(entityKey, fieldKey);
+    const isItInTheCache = cache.resolve(
+      cache.resolveFieldByKey(entityKey, fieldKey) as string,
+      "posts"
+    );
     info.partial = !isItInTheCache;
-    const results: string[] = [];
+    let hasMore = true;
+    const posts: string[] = [];
     fieldInfos.forEach((fi) => {
-      const data = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string[];
-      results.push(...data);
+      const key = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string;
+      const postsCached = cache.resolve(key, "posts") as string[];
+      const hasMoreCached = cache.resolve(key, "hasMore") as boolean;
+      if (!hasMoreCached) {
+        hasMore = hasMoreCached;
+      }
+      posts.push(...postsCached);
     });
 
-    return results;
+    return {
+      __typename: "PaginatedPosts",
+      hasMore,
+      posts,
+    };
   };
 };
 
 const cacheExchangeOptions: CacheExchangeOpts = {
+  keys: {
+    PaginatedPosts: () => null,
+  },
   resolvers: {
     Query: {
       posts: cursorPagination(),
