@@ -116,6 +116,11 @@ const cacheExchangeOptions: CacheExchangeOpts = {
           () => ({ me: null })
         );
       },
+      createPost: (_result, args, cache, info) => {
+        cache.invalidate("Query", "posts", {
+          limit: 15,
+        });
+      },
     },
   },
 };
