@@ -128,14 +128,6 @@ const cacheExchangeOptions: CacheExchangeOpts = {
         });
       },
       vote: (_result, args, cache, info) => {
-        //   const allFields = cache.inspectFields("Query");
-        //   const fieldInfos = allFields.filter(
-        //     (info) => info.fieldName === "posts"
-        //   );
-        //   fieldInfos.forEach((fi) => {
-        //     cache.invalidate("Query", "posts", fi.arguments || {});
-        //   });
-        // },
         const { postId, value } = args as VoteMutationVariables;
         const data = cache.readFragment(
           gql`

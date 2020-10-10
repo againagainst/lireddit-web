@@ -11,12 +11,18 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({ post }) => {
     "updoot-loading" | "downdoot-loading" | "not-loading"
   >("not-loading");
   const [, vote] = useVoteMutation();
-  function voteAndUpdate(type: "up" | "down") {
+  function voteAndUpdate(
+    newVote: 1 | -1,
+    currentVote: number | null | undefined
+  ) {
     return async () => {
-      setLoadingState(type === "up" ? "updoot-loading" : "downdoot-loading");
+      console.log("post.voteStatus", currentVote);
+
+      if (newVote === currentVote) return;
+      setLoadingState(newVote === 1 ? "updoot-loading" : "downdoot-loading");
       await vote({
         postId: post.id,
-        value: type === "up" ? 1 : -1,
+        value: newVote,
       });
       setLoadingState("not-loading");
     };
@@ -24,21 +30,19 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({ post }) => {
   return (
     <Flex direction="column" justifyContent="center" alignItems="center" mr={4}>
       <IconButton
-        onClick={voteAndUpdate("up")}
+        onClick={voteAndUpdate(1, post.voteStatus)}
         isLoading={loadingState === "updoot-loading"}
         icon="chevron-up"
         aria-label="Updoot"
-        hidden={typeof post.voteStatus !== "undefined" && post.voteStatus === 1}
+        variantColor={post.voteStatus === 1 ? "green" : undefined}
       />
       {post.points}
       <IconButton
-        onClick={voteAndUpdate("down")}
+        onClick={voteAndUpdate(-1, post.voteStatus)}
         isLoading={loadingState === "downdoot-loading"}
         icon="chevron-down"
         aria-label="Downdoot"
-        hidden={
-          typeof post.voteStatus !== "undefined" && post.voteStatus === -1
-        }
+        variantColor={post.voteStatus === -1 ? "red" : undefined}
       />
     </Flex>
   );
