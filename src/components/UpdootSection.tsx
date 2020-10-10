@@ -16,8 +16,6 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({ post }) => {
     currentVote: number | null | undefined
   ) {
     return async () => {
-      console.log("post.voteStatus", currentVote);
-
       if (newVote === currentVote) return;
       setLoadingState(newVote === 1 ? "updoot-loading" : "downdoot-loading");
       await vote({

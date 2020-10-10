@@ -18,6 +18,7 @@ import {
   VoteMutationVariables,
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
+import { isServer } from "./isServer";
 
 const errorExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
@@ -129,24 +130,33 @@ const cacheExchangeOptions: CacheExchangeOpts = {
       },
       vote: (_result, args, cache, info) => {
         const { postId, value } = args as VoteMutationVariables;
-        const data = cache.readFragment(
+        const postFragmentCache = cache.readFragment(
           gql`
             fragment _before on Post {
               id
               points
+              voteStatus
             }
           `,
           { id: postId } as any
         );
-        if (data) {
-          const newPoints = (data.points as number) + value;
+        if (postFragmentCache) {
+          if (postFragmentCache.voteStatus === value) {
+            return;
+          }
+          const newPoints = (postFragmentCache.points as number) + value;
           cache.writeFragment(
             gql`
               fragment _after on Post {
                 points
+                voteStatus
               }
             `,
-            { id: postId, points: newPoints } as any
+            {
+              id: postId,
+              points: newPoints,
+              voteStatus: postFragmentCache.voteStatus ? null : value,
+            } as any
           );
         }
       },
@@ -154,10 +164,14 @@ const cacheExchangeOptions: CacheExchangeOpts = {
   },
 };
 
-export const createUrqlClient = (ssrExchange: any) => ({
+export const createUrqlClient = (ssrExchange: any, ctx: any) => ({
   url: "http://localhost:4000/graphql",
   fetchOptions: {
     credentials: "include" as const,
+    headers:
+      isServer() && ctx.req.headers.cookie
+        ? { cookie: ctx.req.headers.cookie }
+        : undefined,
   },
   exchanges: [
     dedupExchange,
