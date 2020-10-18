@@ -10,6 +10,7 @@ import {
 } from "urql";
 import { pipe, tap } from "wonka";
 import {
+  DeletePostMutationVariables,
   LoginMutation,
   LogoutMutation,
   MeDocument,
@@ -159,6 +160,12 @@ const cacheExchangeOptions: CacheExchangeOpts = {
             } as any
           );
         }
+      },
+      deletePost: (_result, args, cache, info) => {
+        cache.invalidate({
+          __typename: "Post",
+          id: (args as DeletePostMutationVariables).id,
+        });
       },
     },
   },
