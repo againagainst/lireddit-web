@@ -3,6 +3,7 @@ import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
+import { useGetPostFromUrl } from "utils/useGetPostFromUrl";
 import { Layout } from "../../components/Layout";
 import {
   useDeletePostMutation,
@@ -13,8 +14,7 @@ import { createUrqlClient } from "../../utils/createUrqlClient";
 
 export const Post = ({}) => {
   const router = useRouter();
-  const postId =
-    typeof router.query.id === "string" ? parseInt(router.query.id) : -1;
+  const postId = useGetPostFromUrl();
   const [{ data: postQuery, fetching }] = usePostQuery({
     pause: postId === -1,
     variables: { id: postId },

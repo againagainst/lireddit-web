@@ -7,14 +7,14 @@ import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
 import React from "react";
 import { createUrqlClient } from "utils/createUrqlClient";
+import { useGetPostFromUrl } from "utils/useGetPostFromUrl";
 import { useIsAuth } from "utils/useIsAuth";
 
 const EditPost: React.FC<{}> = ({}) => {
   useIsAuth();
 
   const router = useRouter();
-  const postId =
-    typeof router.query.id === "string" ? parseInt(router.query.id) : -1;
+  const postId = useGetPostFromUrl();
   const [{ data, fetching }] = usePostQuery({
     pause: postId === -1,
     variables: { id: postId },
@@ -44,7 +44,7 @@ const EditPost: React.FC<{}> = ({}) => {
             text: values.text,
           });
           if (!error) {
-            router.push("/");
+            router.back();
           }
         }}
       >
