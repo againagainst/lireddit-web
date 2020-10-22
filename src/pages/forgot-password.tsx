@@ -1,11 +1,11 @@
 import { Box, Button } from "@chakra-ui/core";
+import { InputField } from "components/InputField";
+import { Wrapper } from "components/Wrapper";
 import { Form, Formik } from "formik";
+import { useForgotPasswordMutation } from "generated/graphql";
 import { withUrqlClient } from "next-urql";
 import React, { useState } from "react";
-import { InputField } from "../components/InputField";
-import { Wrapper } from "../components/Wrapper";
-import { useForgotPasswordMutation } from "../generated/graphql";
-import { createUrqlClient } from "../utils/createUrqlClient";
+import { createUrqlClient } from "utils/createUrqlClient";
 
 interface ForgotPasswordProps {}
 

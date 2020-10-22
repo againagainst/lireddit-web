@@ -8,13 +8,13 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/core";
+import { Layout } from "components/Layout";
+import { UpdootSection } from "components/UpdootSection";
+import { useDeletePostMutation, usePostsQuery } from "generated/graphql";
 import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
 import React, { useState } from "react";
-import { Layout } from "../components/Layout";
-import { UpdootSection } from "../components/UpdootSection";
-import { useDeletePostMutation, usePostsQuery } from "../generated/graphql";
-import { createUrqlClient } from "../utils/createUrqlClient";
+import { createUrqlClient } from "utils/createUrqlClient";
 
 const Index = () => {
   const [variables, setVariables] = useState({

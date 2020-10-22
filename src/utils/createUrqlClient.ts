@@ -1,5 +1,14 @@
 import { cacheExchange, Resolver } from "@urql/exchange-graphcache";
 import { CacheExchangeOpts } from "@urql/exchange-graphcache/dist/types/cacheExchange";
+import {
+  DeletePostMutationVariables,
+  LoginMutation,
+  LogoutMutation,
+  MeDocument,
+  MeQuery,
+  RegisterMutation,
+  VoteMutationVariables,
+} from "generated/graphql";
 import gql from "graphql-tag";
 import Router from "next/router";
 import {
@@ -9,15 +18,6 @@ import {
   stringifyVariables,
 } from "urql";
 import { pipe, tap } from "wonka";
-import {
-  DeletePostMutationVariables,
-  LoginMutation,
-  LogoutMutation,
-  MeDocument,
-  MeQuery,
-  RegisterMutation,
-  VoteMutationVariables,
-} from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
 import { isServer } from "./isServer";
 
