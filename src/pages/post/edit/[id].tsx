@@ -1,12 +1,17 @@
-import { Box, Flex, Heading, Text } from "@chakra-ui/core";
+import { Box, Button, Flex } from "@chakra-ui/core";
+import { InputField } from "components/InputField";
 import { Layout } from "components/Layout";
-import { usePostQuery } from "generated/graphql";
+import { Form, Formik } from "formik";
+import { usePostQuery, useUpdatePostMutation } from "generated/graphql";
 import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
 import React from "react";
 import { createUrqlClient } from "utils/createUrqlClient";
+import { useIsAuth } from "utils/useIsAuth";
 
-export const Post = ({}) => {
+const EditPost: React.FC<{}> = ({}) => {
+  useIsAuth();
+
   const router = useRouter();
   const postId =
     typeof router.query.id === "string" ? parseInt(router.query.id) : -1;
@@ -14,6 +19,7 @@ export const Post = ({}) => {
     pause: postId === -1,
     variables: { id: postId },
   });
+  const [, updatePost] = useUpdatePostMutation();
 
   if (fetching) {
     return <Layout>Fetching...</Layout>;
@@ -28,16 +34,40 @@ export const Post = ({}) => {
   }
 
   return (
-    <Layout>
-      <Flex p={5} shadow="md" borderWidth="1px">
-        <Box>
-          <Heading fontSize="xl">{data.post.title}</Heading>
-          <Text fontSize="xs">posted by {data.post.creator.username}</Text>
-          <Text mt={4}>{data.post.text}</Text>
-        </Box>
-      </Flex>
+    <Layout variant="small">
+      <Formik
+        initialValues={{ title: data.post.title, text: data.post.text }}
+        onSubmit={async (values) => {
+          const { error } = await updatePost({
+            id: postId,
+            title: values.title,
+            text: values.text,
+          });
+          if (!error) {
+            router.push("/");
+          }
+        }}
+      >
+        {({ isSubmitting }) => (
+          <Form>
+            <InputField name="title" label="Title" />
+            <Box mt={4}>
+              <InputField textarea name="text" label="Body" />
+            </Box>
+            <Flex alignItems="baseline" mt={4}>
+              <Button
+                type="submit"
+                variantColor="teal"
+                isLoading={isSubmitting}
+              >
+                Edit Post
+              </Button>
+            </Flex>
+          </Form>
+        )}
+      </Formik>
     </Layout>
   );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(Post);
+export default withUrqlClient(createUrqlClient, { ssr: false })(EditPost);

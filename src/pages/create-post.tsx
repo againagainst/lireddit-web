@@ -10,8 +10,9 @@ import { createUrqlClient } from "utils/createUrqlClient";
 import { useIsAuth } from "utils/useIsAuth";
 
 const CreatePost: React.FC<{}> = ({}) => {
-  const router = useRouter();
   useIsAuth();
+
+  const router = useRouter();
   const [, createPost] = useCreatePostMutation();
   return (
     <Layout variant="small">
