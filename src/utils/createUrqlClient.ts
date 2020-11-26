@@ -174,20 +174,24 @@ const cacheExchangeOptions: CacheExchangeOpts = {
   },
 };
 
-export const createUrqlClient = (ssrExchange: any, ctx: any) => ({
-  url: "http://localhost:4000/graphql",
-  fetchOptions: {
-    credentials: "include" as const,
-    headers:
-      isServer() && ctx.req.headers.cookie
-        ? { cookie: ctx.req.headers.cookie }
-        : undefined,
-  },
-  exchanges: [
-    dedupExchange,
-    cacheExchange(cacheExchangeOptions),
-    errorExchange,
-    ssrExchange,
-    fetchExchange,
-  ],
-});
+export const createUrqlClient = (ssrExchange: any, ctx: any) => {
+  let cookie = "";
+  if (isServer()) {
+    cookie = ctx?.req?.headers?.cookie;
+  }
+
+  return {
+    url: process.env.NEXT_PUBLIC_API_URL as string,
+    fetchOptions: {
+      credentials: "include" as const,
+      headers: cookie ? { cookie } : undefined,
+    },
+    exchanges: [
+      dedupExchange,
+      cacheExchange(cacheExchangeOptions),
+      errorExchange,
+      ssrExchange,
+      fetchExchange,
+    ],
+  };
+};
