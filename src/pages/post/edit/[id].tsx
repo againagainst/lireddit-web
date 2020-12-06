@@ -3,10 +3,8 @@ import { InputField } from "components/InputField";
 import { Layout } from "components/Layout";
 import { Form, Formik } from "formik";
 import { usePostQuery, useUpdatePostMutation } from "generated/graphql";
-import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
 import React from "react";
-import { createUrqlClient } from "utils/createUrqlClient";
 import { useGetPostFromUrl } from "utils/useGetPostFromUrl";
 import { useIsAuth } from "utils/useIsAuth";
 
@@ -15,13 +13,13 @@ const EditPost: React.FC<{}> = ({}) => {
 
   const router = useRouter();
   const postId = useGetPostFromUrl();
-  const [{ data, fetching }] = usePostQuery({
-    pause: postId === -1,
+  const { data, loading } = usePostQuery({
+    skip: postId === -1,
     variables: { id: postId },
   });
-  const [, updatePost] = useUpdatePostMutation();
+  const [updatePost] = useUpdatePostMutation();
 
-  if (fetching) {
+  if (loading) {
     return <Layout>Fetching...</Layout>;
   }
 
@@ -39,9 +37,7 @@ const EditPost: React.FC<{}> = ({}) => {
         initialValues={{ title: data.post.title, text: data.post.text }}
         onSubmit={async (values) => {
           const { error } = await updatePost({
-            id: postId,
-            title: values.title,
-            text: values.text,
+            variables: { id: postId, ...values },
           });
           if (!error) {
             router.back();
@@ -70,4 +66,4 @@ const EditPost: React.FC<{}> = ({}) => {
   );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: false })(EditPost);
+export default EditPost;

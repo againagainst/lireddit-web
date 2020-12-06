@@ -1,13 +1,12 @@
+import { useApolloClient } from "@apollo/client";
 import { Box, Button, Flex, Link } from "@chakra-ui/core";
 import { InputField } from "components/InputField";
 import { Wrapper } from "components/Wrapper";
 import { Form, Formik } from "formik";
 import { useLoginMutation } from "generated/graphql";
-import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
-import { createUrqlClient } from "utils/createUrqlClient";
 import { getStringOrElse } from "utils/getStringOrElse";
 import { toErrorMap } from "utils/toErrorMap";
 
@@ -15,17 +14,19 @@ interface loginProps {}
 
 const Login: React.FC<loginProps> = ({}) => {
   const router = useRouter();
-  const [, login] = useLoginMutation();
+  const [login] = useLoginMutation();
+  const apolloClient = useApolloClient();
   return (
     <Wrapper variant="small">
       <Formik
         initialValues={{ usernameOrEmail: "", password: "" }}
         onSubmit={async (values, { setErrors }) => {
-          const response = await login(values);
+          const response = await login({ variables: values });
           if (response.data?.login.errors) {
             setErrors(toErrorMap(response.data.login.errors));
           } else if (response.data?.login.user) {
             router.push(getStringOrElse(router.query.next, "/"));
+            apolloClient.resetStore();
           }
         }}
       >
@@ -63,4 +64,4 @@ const Login: React.FC<loginProps> = ({}) => {
   );
 };
 
-export default withUrqlClient(createUrqlClient)(Login);
+export default Login;

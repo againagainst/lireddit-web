@@ -4,14 +4,16 @@ import React from "react";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
 import { useRouter } from "next/router";
+import { useApolloClient } from "@apollo/client";
 
 interface NavBarProps {}
 
 export const NavBar: React.FC<NavBarProps> = ({}) => {
   const router = useRouter();
-  const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
-  const [{ data, fetching: loginFetching }] = useMeQuery({
-    pause: isServer(), // Disable SSR for the NavBar
+  const [logout, { loading: logoutFetching }] = useLogoutMutation();
+  const apolloClient = useApolloClient();
+  const { data, loading: loginFetching } = useMeQuery({
+    skip: isServer(), // Disable SSR for the NavBar
   });
 
   let body = null;
@@ -27,7 +29,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
           <Button
             onClick={async () => {
               await logout();
-              router.reload();
+              apolloClient.resetStore();
             }}
             isLoading={logoutFetching}
             variant="link"

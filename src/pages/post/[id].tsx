@@ -1,20 +1,18 @@
 import { Box, Flex, Heading, Text } from "@chakra-ui/core";
 import { EditDeleteButtons } from "components/EditDeleteButtons";
-import { withUrqlClient } from "next-urql";
 import React from "react";
 import { useGetPostFromUrl } from "utils/useGetPostFromUrl";
 import { Layout } from "../../components/Layout";
 import { usePostQuery } from "../../generated/graphql";
-import { createUrqlClient } from "../../utils/createUrqlClient";
 
 export const Post = ({}) => {
   const postId = useGetPostFromUrl();
-  const [{ data: postQuery, fetching }] = usePostQuery({
-    pause: postId === -1,
+  const { data: postQuery, loading } = usePostQuery({
+    skip: postId === -1,
     variables: { id: postId },
   });
 
-  if (fetching) {
+  if (loading) {
     return <Layout>Fetching...</Layout>;
   }
 
@@ -51,4 +49,4 @@ export const Post = ({}) => {
   );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(Post);
+export default Post;
