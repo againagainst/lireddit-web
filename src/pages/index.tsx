@@ -1,16 +1,19 @@
 import { Box, Button, Flex, Heading, Link, Stack, Text } from "@chakra-ui/core";
 import { Layout } from "components/Layout";
 import { UpdootSection } from "components/UpdootSection";
-import { usePostsQuery } from "generated/graphql";
+import { PostsQuery, usePostsQuery } from "generated/graphql";
 import NextLink from "next/link";
 import React, { useState } from "react";
 
 const Index = () => {
-  const [variables, setVariables] = useState({
-    limit: 15,
-    cursor: null as null | string,
+  // pagination
+  const { data, error, loading, fetchMore, variables } = usePostsQuery({
+    variables: {
+      limit: 15,
+      cursor: null as null | string,
+    },
+    notifyOnNetworkStatusChange: true,
   });
-  const { data, loading } = usePostsQuery({ variables });
 
   if (!loading && !data) {
     return <div> Error loading data...</div>;
@@ -46,9 +49,32 @@ const Index = () => {
         <Flex>
           <Button
             onClick={() => {
-              setVariables({
-                limit: variables.limit,
-                cursor: data.posts.posts[data.posts.posts.length - 1].createdAt,
+              fetchMore({
+                variables: {
+                  limit: variables?.limit,
+                  cursor:
+                    data.posts.posts[data.posts.posts.length - 1].createdAt,
+                },
+                updateQuery: (
+                  previousValue,
+                  { fetchMoreResult }
+                ): PostsQuery => {
+                  if (!fetchMoreResult) {
+                    return previousValue as PostsQuery;
+                  }
+
+                  return {
+                    __typename: "Query",
+                    posts: {
+                      __typename: "PaginatedPosts",
+                      hasMore: (fetchMoreResult as PostsQuery).posts.hasMore,
+                      posts: [
+                        ...(previousValue as PostsQuery).posts.posts,
+                        ...(fetchMoreResult as PostsQuery).posts.posts,
+                      ],
+                    },
+                  };
+                },
               });
             }}
             isLoading={loading}
