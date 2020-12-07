@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import React from "react";
 import { useGetPostFromUrl } from "utils/useGetPostFromUrl";
 import { useIsAuth } from "utils/useIsAuth";
+import { withApollo } from "utils/withApollo";
 
 const EditPost: React.FC<{}> = ({}) => {
   useIsAuth();
@@ -36,10 +37,10 @@ const EditPost: React.FC<{}> = ({}) => {
       <Formik
         initialValues={{ title: data.post.title, text: data.post.text }}
         onSubmit={async (values) => {
-          const { error } = await updatePost({
+          const { errors } = await updatePost({
             variables: { id: postId, ...values },
           });
-          if (!error) {
+          if (!errors) {
             router.back();
           }
         }}
@@ -66,4 +67,4 @@ const EditPost: React.FC<{}> = ({}) => {
   );
 };
 
-export default EditPost;
+export default withApollo({ ssr: false })(EditPost);

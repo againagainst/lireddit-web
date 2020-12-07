@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import React from "react";
 import { getStringOrElse } from "utils/getStringOrElse";
 import { toErrorMap } from "utils/toErrorMap";
+import { withApollo } from "utils/withApollo";
 
 interface loginProps {}
 
@@ -64,4 +65,4 @@ const Login: React.FC<loginProps> = ({}) => {
   );
 };
 
-export default Login;
+export default withApollo({ ssr: false })(Login);

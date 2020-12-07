@@ -2,6 +2,7 @@ import { Box, Flex, Heading, Text } from "@chakra-ui/core";
 import { EditDeleteButtons } from "components/EditDeleteButtons";
 import React from "react";
 import { useGetPostFromUrl } from "utils/useGetPostFromUrl";
+import { withApollo } from "utils/withApollo";
 import { Layout } from "../../components/Layout";
 import { usePostQuery } from "../../generated/graphql";
 
@@ -49,4 +50,4 @@ export const Post = ({}) => {
   );
 };
 
-export default Post;
+export default withApollo({ ssr: true })(Post);

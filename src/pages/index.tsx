@@ -1,9 +1,10 @@
 import { Box, Button, Flex, Heading, Link, Stack, Text } from "@chakra-ui/core";
 import { Layout } from "components/Layout";
 import { UpdootSection } from "components/UpdootSection";
-import { PostsQuery, usePostsQuery } from "generated/graphql";
+import { usePostsQuery } from "generated/graphql";
 import NextLink from "next/link";
-import React, { useState } from "react";
+import React from "react";
+import { withApollo } from "utils/withApollo";
 
 const Index = () => {
   // pagination
@@ -69,4 +70,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default withApollo({ ssr: true })(Index);

@@ -6,6 +6,7 @@ import { useCreatePostMutation } from "generated/graphql";
 import { useRouter } from "next/router";
 import React from "react";
 import { useIsAuth } from "utils/useIsAuth";
+import { withApollo } from "utils/withApollo";
 
 const CreatePost: React.FC<{}> = ({}) => {
   useIsAuth();
@@ -54,4 +55,4 @@ const CreatePost: React.FC<{}> = ({}) => {
   );
 };
 
-export default CreatePost;
+export default withApollo({ ssr: false })(CreatePost);
