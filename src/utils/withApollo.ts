@@ -1,11 +1,22 @@
-import { ApolloClient, InMemoryCache } from "@apollo/client";
+import {
+  ApolloClient,
+  InMemoryCache,
+  InMemoryCacheConfig,
+} from "@apollo/client";
 import { PaginatedPosts } from "generated/graphql";
-import { withApollo as withNextApollo } from "next-apollo";
+import { NextPageContext } from "next";
+import { withApollo } from "next-apollo";
 
-const apolloClient = new ApolloClient({
-  uri: process.env.NEXT_PUBLIC_API_URL,
-  credentials: "include",
-  cache: new InMemoryCache({
+function getHeadersFromContext(
+  ctx: NextPageContext | undefined
+): { cookie: string } {
+  let cookie = "";
+  if (typeof window === "undefined") cookie = ctx?.req?.headers.cookie || "";
+  return { cookie };
+}
+
+function paginationCacheConfig(): InMemoryCacheConfig {
+  return {
     typePolicies: {
       Query: {
         fields: {
@@ -24,7 +35,16 @@ const apolloClient = new ApolloClient({
         },
       },
     },
-  }),
-});
+  };
+}
 
-export const withApollo = withNextApollo(apolloClient);
+function createClient(ctx: NextPageContext | undefined) {
+  return new ApolloClient({
+    uri: process.env.NEXT_PUBLIC_API_URL,
+    headers: getHeadersFromContext(ctx),
+    credentials: "include",
+    cache: new InMemoryCache(paginationCacheConfig()),
+  });
+}
+
+export default withApollo(createClient);

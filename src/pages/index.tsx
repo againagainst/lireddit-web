@@ -1,10 +1,11 @@
 import { Box, Button, Flex, Heading, Link, Stack, Text } from "@chakra-ui/core";
+import { EditDeleteButtons } from "components/EditDeleteButtons";
 import { Layout } from "components/Layout";
 import { UpdootSection } from "components/UpdootSection";
 import { usePostsQuery } from "generated/graphql";
 import NextLink from "next/link";
 import React from "react";
-import { withApollo } from "utils/withApollo";
+import withApollo from "utils/withApollo";
 
 const Index = () => {
   // pagination
@@ -20,17 +21,23 @@ const Index = () => {
     return <div> Error loading data...</div>;
   }
 
+  if (loading && !data) {
+    return (
+      <Layout>
+        <div>loading...</div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
-      {loading && !data ? (
-        <div>loading...</div>
-      ) : (
-        <Stack spacing={8}>
-          {data!.posts.posts.map((p) =>
-            !p ? null : (
-              <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
-                <UpdootSection post={p} />
-                <Box flex={1}>
+      <Stack spacing={8}>
+        {data!.posts.posts.map((p) =>
+          !p ? null : (
+            <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
+              <UpdootSection post={p} />
+              <Box flex={1}>
+                <Flex>
                   <Box>
                     <NextLink href="/post/[id]" as={`/post/${p.id}`}>
                       <Link>
@@ -39,13 +46,14 @@ const Index = () => {
                     </NextLink>
                     <Text fontSize="xs">posted by {p.creator.username}</Text>
                   </Box>
-                  <Text mt={4}>{p.textSnippet}</Text>
-                </Box>
-              </Flex>
-            )
-          )}
-        </Stack>
-      )}
+                  <EditDeleteButtons id={p.id} creatorId={p.creator.id} />
+                </Flex>
+                <Text mt={4}>{p.textSnippet}</Text>
+              </Box>
+            </Flex>
+          )
+        )}
+      </Stack>
       {data && data.posts.hasMore ? (
         <Flex>
           <Button

@@ -1,8 +1,9 @@
 import { Box, Flex, Heading, Text } from "@chakra-ui/core";
 import { EditDeleteButtons } from "components/EditDeleteButtons";
+import { useRouter } from "next/router";
 import React from "react";
 import { useGetPostFromUrl } from "utils/useGetPostFromUrl";
-import { withApollo } from "utils/withApollo";
+import withApollo from "utils/withApollo";
 import { Layout } from "../../components/Layout";
 import { usePostQuery } from "../../generated/graphql";
 
@@ -20,7 +21,7 @@ export const Post = ({}) => {
   if (!postQuery?.post) {
     return (
       <Layout>
-        <Box>Not Found.</Box>
+        <Box>Post is deleted or never exist.</Box>
       </Layout>
     );
   }

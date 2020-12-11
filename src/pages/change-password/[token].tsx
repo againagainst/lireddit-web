@@ -4,12 +4,16 @@ import { NextPage } from "next";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { withApollo } from "utils/withApollo";
-import { InputField } from "../../components/InputField";
-import { Wrapper } from "../../components/Wrapper";
-import { useChangePasswordMutation } from "../../generated/graphql";
-import { getStringOrElse } from "../../utils/getStringOrElse";
-import { toErrorMap } from "../../utils/toErrorMap";
+import withApollo from "utils/withApollo";
+import { InputField } from "components/InputField";
+import { Wrapper } from "components/Wrapper";
+import {
+  MeDocument,
+  MeQuery,
+  useChangePasswordMutation,
+} from "generated/graphql";
+import { getStringOrElse } from "utils/getStringOrElse";
+import { toErrorMap } from "utils/toErrorMap";
 
 export const ChangePassword: NextPage = () => {
   const router = useRouter();
@@ -24,6 +28,16 @@ export const ChangePassword: NextPage = () => {
             variables: {
               newPassword: values.newPassword,
               token: getStringOrElse(router.query.token),
+            },
+            update: (cache, { data }) => {
+              cache.writeQuery<MeQuery>({
+                query: MeDocument,
+                data: {
+                  __typename: "Query",
+                  me: data?.changePassword.user,
+                },
+              });
+              cache.evict({ fieldName: "posts" });
             },
           });
           if (response.data?.changePassword.errors) {

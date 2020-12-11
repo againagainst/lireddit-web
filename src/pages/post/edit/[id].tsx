@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 import React from "react";
 import { useGetPostFromUrl } from "utils/useGetPostFromUrl";
 import { useIsAuth } from "utils/useIsAuth";
-import { withApollo } from "utils/withApollo";
+import withApollo from "utils/withApollo";
 
 const EditPost: React.FC<{}> = ({}) => {
   useIsAuth();

@@ -4,7 +4,7 @@ import { Wrapper } from "components/Wrapper";
 import { Form, Formik } from "formik";
 import { useForgotPasswordMutation } from "generated/graphql";
 import React, { useState } from "react";
-import { withApollo } from "utils/withApollo";
+import withApollo from "utils/withApollo";
 
 interface ForgotPasswordProps {}
 
